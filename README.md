@@ -17,6 +17,15 @@ pipeline supplies the surrounding workflow?
 - The VVAH Ollama service binds only to `127.0.0.1:11435`; it is not LAN- or
   internet-accessible.
 
+## Responsible commercial-model evaluation
+
+This lab, when run using commercial AI models, is designed for authorized
+application-security evaluation. Its reference workflow analyzes an intentionally
+vulnerable local training project, uses a detection-only VVAH configuration, and
+stops before remediation, live validation, or exploit verification. This use case
+generally aligns with commercial-model acceptable-use policies for authorized
+security work.
+
 ## Architecture
 
 ```text
