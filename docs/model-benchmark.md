@@ -31,6 +31,20 @@ fails. It then executes these variants in order:
 3. `typed-detection` — DeepAgents route for threat-modeling and deep-dive; direct verification.
 4. `typed-full` — DeepAgents route for threat-modeling, deep-dive, and verification.
 
+## Models without Ollama thinking support
+
+Some tool-capable models reject VVAH's direct OpenAI-compatible reasoning setting
+before a scan begins. Do not describe their results as like-for-like with the four
+standard variants. Instead, use the explicitly labeled compatibility profile:
+
+```bash
+./scripts/run_model_benchmark.sh --model hermes3:8b --profile typed-all
+```
+
+It runs only `typed-all`: every active detection role uses the OpenAI-compatible
+DeepAgents route, which omits the unsupported direct-route reasoning parameter.
+It remains detection-only and uses the same local target and safety boundaries.
+
 Each completed variant creates a local `complete` marker. To resume an interrupted
 batch, copy the actual directory shown in the opening `Benchmark artifacts:` line;
 the path below is an illustration only and must be replaced:

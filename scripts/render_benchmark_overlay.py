@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 
-VARIANTS = ("direct-high", "direct-low", "typed-detection", "typed-full")
+VARIANTS = ("direct-high", "direct-low", "typed-detection", "typed-full", "typed-all")
 MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 
 
@@ -59,6 +59,9 @@ def main() -> int:
             text = replace_role(text, role, typed)
     if arguments.variant == "typed-full":
         text = replace_role(text, "verify", typed)
+    if arguments.variant == "typed-all":
+        for role in ("autoexclude", "preprocess", "threatmodel", "decompose", "deepdive", "verify", "dedup", "chain"):
+            text = replace_role(text, role, typed)
 
     arguments.output.parent.mkdir(parents=True, exist_ok=True)
     arguments.output.write_text(text)

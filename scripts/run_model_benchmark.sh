@@ -4,18 +4,19 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODEL=""
 RUN_DIR=""
+PROFILE="standard"
 VVAH_SOURCE_DIR="${HOME}/vvah-lab/visa-vulnerability-agentic-harness"
 VVAH_COMMAND="${VVAH_SOURCE_DIR}/.venv/bin/vvaharness"
 VVAH_CONFIG="${VVAH_SOURCE_DIR}/vvaharness/config/profiles/default.yaml"
 VVAH_OVERLAY="${VVAH_SOURCE_DIR}/vvaharness/config/profiles/config.local.yaml"
 BASE_OVERLAY="${PROJECT_ROOT}/config/vvah-ollama-overlay.yaml"
 TARGET_DIR="${PROJECT_ROOT}/targets/toy-vulnerable-python-api"
-VARIANTS=(direct-high direct-low typed-detection typed-full)
+VARIANTS=()
 BACKUP_OVERLAY=""
 RESTORE_MODE=""
 
 usage() {
-  echo "Usage: $0 --model MODEL [--run-dir DIRECTORY]" >&2
+  echo "Usage: $0 --model MODEL [--profile standard|typed-all] [--run-dir DIRECTORY]" >&2
 }
 
 while [ "$#" -gt 0 ]; do
@@ -26,6 +27,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --run-dir)
       RUN_DIR="${2:-}"
+      shift 2
+      ;;
+    --profile)
+      PROFILE="${2:-}"
       shift 2
       ;;
     *)
@@ -44,6 +49,19 @@ if [[ ! "${MODEL}" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*$ ]]; then
   echo "Invalid model tag. Use only letters, digits, dot, underscore, colon, and hyphen." >&2
   exit 2
 fi
+
+case "${PROFILE}" in
+  standard)
+    VARIANTS=(direct-high direct-low typed-detection typed-full)
+    ;;
+  typed-all)
+    VARIANTS=(typed-all)
+    ;;
+  *)
+    echo "Invalid profile. Choose standard or typed-all." >&2
+    exit 2
+    ;;
+esac
 
 if [ ! -x "${VVAH_COMMAND}" ]; then
   echo "VVAH is not installed. Run ./scripts/bootstrap_vvah.sh first." >&2
@@ -88,7 +106,7 @@ fi
 export OPENAI_API_KEY="ollama"
 export OPENAI_BASE_URL="http://127.0.0.1:11435/v1"
 
-printf 'model=%s\nstarted_utc=%s\n' "${MODEL}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${RUN_DIR}/run-metadata.txt"
+printf 'model=%s\nprofile=%s\nstarted_utc=%s\n' "${MODEL}" "${PROFILE}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${RUN_DIR}/run-metadata.txt"
 
 echo "Pulling ${MODEL} into the isolated VVAH Ollama container..."
 docker exec vvah-ollama ollama pull "${MODEL}"
