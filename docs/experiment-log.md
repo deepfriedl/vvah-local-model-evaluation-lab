@@ -16,3 +16,20 @@ placeholder and endpoint are exported only for the VVAH process.
 
 Start the dedicated model container, download `qwen3:8b`, and run the three harmless
 capability probes: model listing, structured JSON output, and tool calling.
+
+## Baseline 1 — high-effort agentic scan
+
+The first detection-only scan completed through S9 against the local training
+fixture. The deep-dive stage produced six candidates, but the deterministic
+evidence-enrichment gate rejected every candidate; the final SARIF contained zero
+results. Metadata-only diagnostics recorded three `VVAH-E003` degenerate-response
+events in S2/S4. The gate remains enabled: zero accepted findings is the correct
+outcome when the model does not provide valid, re-anchorable evidence.
+
+## Experiment 2 — reduced reasoning effort
+
+The next run keeps the target, model, endpoint, stages, and safety limits unchanged.
+It changes only `step2.effort` and `step4.effort` from their VVAH default of `high`
+to `low`. This tests whether Qwen 3 8B produces more usable structured evidence
+when it spends fewer tokens on native reasoning. Compare accepted findings, S5
+exclusions, `VVAH-E003` count, runtime, and GPU utilization with Baseline 1.

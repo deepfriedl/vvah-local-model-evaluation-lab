@@ -37,6 +37,7 @@ step2:
   max_threats: 8
   max_assets: 12
   max_trust_boundaries: 16
+  effort: low
   max_tokens: 8192
   max_turns: 40
   max_model_calls: 2
@@ -46,6 +47,7 @@ step2:
 step4:
   parallel: 1
   batch_size: 1
+  effort: low
   max_tokens: 8192
   max_turns: 40
   max_model_calls: 4
