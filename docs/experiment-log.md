@@ -48,3 +48,18 @@ the existing OpenAI-compatible endpoint, for only the threat-model and deep-dive
 roles. This route gives those agentic roles VVAH's schema-typed tool path instead
 of direct OpenAI-compatible structured output. The endpoint, Qwen model, target,
 single-session limit, and detection-only safety boundary remain unchanged.
+
+Result: this is the first configuration to pass a candidate through deterministic
+evidence enrichment: six deep-dive candidates became one retained finding after
+four exclusions and one duplicate collapse. Deep-dive time fell further to about
+186 seconds. The retained candidate then reached Step 6, where the remaining
+direct OpenAI-compatible `verify` role failed to emit a verdict, leaving zero final
+results. The experiment therefore isolates the remaining failure to the verifier
+route, rather than the detection/evidence path.
+
+## Experiment 4 — schema-typed verifier
+
+Keep Experiment 3 unchanged and route only the `verify` role through the same
+OpenAI-compatible DeepAgents path. This tests whether the retained candidate can
+receive a structured verification verdict. The run remains detection-only and
+does not enable live exploit verification, remediation, or validation.
