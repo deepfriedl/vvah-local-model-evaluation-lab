@@ -34,7 +34,7 @@ def main() -> int:
             {
                 "model": MODEL,
                 "messages": [{"role": "user", "content": "Reply with exactly: ready"}],
-                "think": False,
+                "reasoning_effort": "none",
                 "temperature": 0,
                 "max_tokens": 16,
             },
@@ -52,7 +52,7 @@ def main() -> int:
                         "content": "Return an object containing only the boolean field ready set to true.",
                     }
                 ],
-                "think": False,
+                "reasoning_effort": "none",
                 "temperature": 0,
                 "max_tokens": 32,
                 "response_format": {
@@ -100,7 +100,7 @@ def main() -> int:
                 ],
                 "tools": tools,
                 "tool_choice": "required",
-                "think": False,
+                "reasoning_effort": "none",
                 "temperature": 0,
                 "max_tokens": 64,
             },
