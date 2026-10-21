@@ -1,0 +1,64 @@
+# VVAH Local Model Evaluation Lab
+
+This repository is a reproducible, local-only research environment for evaluating
+[Visa Vulnerability Agentic Harness (VVAH)](https://github.com/visa/visa-vulnerability-agentic-harness)
+with Qwen 3 8B.
+
+The project asks a practical question: can a small, locally served model provide
+useful vulnerability-discovery signal when a structured, agentic application-security
+pipeline supplies the surrounding workflow?
+
+## Scope and safety
+
+- Scan only repositories and running targets for which you have explicit authorization.
+- Initial scans are source-code analysis only, stopping at VVAH step S9. They do not
+  remediate code and do not send live exploit-verification traffic.
+- Findings are triage candidates. A human must validate each finding before action.
+- The VVAH Ollama service binds only to `127.0.0.1:11435`; it is not LAN- or
+  internet-accessible.
+
+## Architecture
+
+```text
+authorized local source checkout
+            |
+            v
+    VVAH Python environment
+            |
+            | OpenAI-compatible API, loopback only
+            v
+Docker: vvah-ollama (Qwen 3 8B)
+127.0.0.1:11435/v1/
+```
+
+The VVAH model server has its own container and model volume. This keeps model
+experiments isolated from other local workloads.
+
+## Phases
+
+1. Start an isolated Qwen endpoint with `deployment/docker-compose.yml`.
+2. Run `scripts/probe_model.py` and record API, JSON-schema, and tool-call behavior.
+3. Install VVAH from Visa's official repository in an isolated virtual environment.
+4. Create a VVAH OpenAI-compatible configuration after the probes pass.
+5. Run a detection-only assessment against an explicitly authorized local checkout.
+6. Record findings, completion status, timing, and GPU utilization for comparison.
+
+## Current status
+
+- [x] Local deployment design documented.
+- [ ] Dedicated VVAH Qwen service started.
+- [ ] Qwen compatibility probes completed.
+- [ ] VVAH installed and configured.
+- [ ] First authorized, detection-only scan completed.
+
+## Repository layout
+
+- `deployment/docker-compose.yml` — complete, isolated model-server definition.
+- `scripts/probe_model.py` — harmless endpoint capability checks.
+- `scripts/bootstrap_vvah.sh` — installs VVAH in an isolated virtual environment.
+- `docs/` — experiment notes and results, excluding credentials and target-source code.
+
+## Never commit
+
+Do not commit `.env` files, API keys, target repositories, reports containing sensitive
+source excerpts, Docker volumes, or local Python environments.

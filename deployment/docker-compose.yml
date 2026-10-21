@@ -1,0 +1,21 @@
+services:
+  ollama:
+    image: ollama/ollama:0.35.1
+    container_name: vvah-ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11435:11434"
+    volumes:
+      - vvah-ollama-models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities:
+                - gpu
+
+volumes:
+  vvah-ollama-models:
+    name: vvah-ollama-models
