@@ -61,6 +61,7 @@ if [ -z "${RUN_DIR}" ]; then
 fi
 
 mkdir -p "${RUN_DIR}"
+echo "Benchmark artifacts: ${RUN_DIR}"
 
 cleanup() {
   if [ "${RESTORE_MODE}" = "restore" ]; then
