@@ -47,10 +47,11 @@ experiments isolated from other local workloads.
 ## Current status
 
 - [x] Local deployment design documented.
-- [ ] Dedicated VVAH Qwen service started.
-- [ ] Qwen compatibility probes completed.
-- [ ] VVAH installed and configured.
-- [ ] First authorized, detection-only scan completed.
+- [x] Dedicated VVAH Qwen service started.
+- [x] Qwen compatibility probes completed.
+- [x] VVAH installed and configured.
+- [x] First authorized, detection-only scan completed.
+- [ ] Diagnose the evidence-enrichment exclusions before treating local-model results as findings.
 
 ## Repository layout
 
@@ -59,6 +60,7 @@ experiments isolated from other local workloads.
 - `scripts/bootstrap_vvah.sh` — installs VVAH in an isolated virtual environment.
 - `scripts/create_demo_target.py` — creates an ignored, source-only training target.
 - `scripts/scan_demo_target.sh` — estimates and scans that target through S9 only.
+- `scripts/summarize_demo_scan.py` — prints metadata-only artifact diagnostics; it never prints source or report excerpts.
 - `config/vvah-ollama-overlay.yaml` — complete, conservative VVAH model overlay.
 - `scripts/configure_vvah.sh` — installs the overlay into the local VVAH checkout.
 - `scripts/doctor_vvah.sh` — performs VVAH's live, token-spending backend check.

@@ -33,8 +33,17 @@ echo "Estimating local demo target scope (no model request):"
 
 echo
 echo "Running detection and reporting only (S0-S9):"
-exec "${VVAH_COMMAND}" scan \
+set +e
+"${VVAH_COMMAND}" scan \
   --repo "${TARGET_DIR}" \
   --config "${VVAH_CONFIG}" \
   --stop-after s9 \
   --no-auto-step1
+SCAN_EXIT_CODE=$?
+set -e
+
+echo
+echo "Metadata-only scan diagnostics:"
+"${PROJECT_ROOT}/scripts/summarize_demo_scan.py" --scan-dir "${TARGET_DIR}/security-scan" || true
+
+exit "${SCAN_EXIT_CODE}"
