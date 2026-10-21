@@ -40,7 +40,8 @@ experiments isolated from other local workloads.
 2. Run `scripts/probe_model.py` and record API, JSON-schema, and tool-call behavior.
 3. Install VVAH from Visa's official repository in an isolated virtual environment.
 4. Create a VVAH OpenAI-compatible configuration after the probes pass.
-5. Run a detection-only assessment against an explicitly authorized local checkout.
+5. Generate a local, intentionally vulnerable training target, then run a
+   detection-only assessment against that authorized checkout.
 6. Record findings, completion status, timing, and GPU utilization for comparison.
 
 ## Current status
@@ -56,6 +57,7 @@ experiments isolated from other local workloads.
 - `deployment/docker-compose.yml` — complete, isolated model-server definition.
 - `scripts/probe_model.py` — harmless endpoint capability checks.
 - `scripts/bootstrap_vvah.sh` — installs VVAH in an isolated virtual environment.
+- `scripts/create_demo_target.py` — creates an ignored, source-only training target.
 - `config/vvah-ollama-overlay.yaml` — complete, conservative VVAH model overlay.
 - `scripts/configure_vvah.sh` — installs the overlay into the local VVAH checkout.
 - `scripts/doctor_vvah.sh` — performs VVAH's live, token-spending backend check.
