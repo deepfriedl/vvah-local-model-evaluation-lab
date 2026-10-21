@@ -63,3 +63,20 @@ Keep Experiment 3 unchanged and route only the `verify` role through the same
 OpenAI-compatible DeepAgents path. This tests whether the retained candidate can
 receive a structured verification verdict. The run remains detection-only and
 does not enable live exploit verification, remediation, or validation.
+
+Result: no candidate reached verification. The threat model again needed repair
+and a hollow-model retry, generated six investigation units, and deep-dive ran for
+about 443 seconds. It produced 13 candidates, all rejected by deterministic
+evidence enrichment; one unit also failed after its repair response did not parse.
+This fails the reproducibility check: the single retained finding from Experiment
+3 was not stable under the same configuration.
+
+## Preliminary conclusion
+
+Qwen 3 8B can operate the local VVAH workflow, use read-only tools, and sometimes
+produce an evidence-backed candidate. Across repeated scans of the same small,
+known training fixture, however, it does not yet produce sufficiently stable,
+well-grounded structured output to serve as a dependable primary VVAH scanner.
+Keep VVAH's deterministic evidence gate enabled. Treat this environment as a
+research baseline and compare it with a stronger model or a deterministic SAST
+tool before applying it to an authorized production repository.
