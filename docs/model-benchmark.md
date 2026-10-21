@@ -32,7 +32,8 @@ fails. It then executes these variants in order:
 4. `typed-full` — DeepAgents route for threat-modeling, deep-dive, and verification.
 
 Each completed variant creates a local `complete` marker. To resume an interrupted
-batch, re-use the run directory printed by the script:
+batch, copy the actual directory shown in the opening `Benchmark artifacts:` line;
+the path below is an illustration only and must be replaced:
 
 ```bash
 ./scripts/run_model_benchmark.sh --model qwen2.5-coder:7b-instruct --run-dir /absolute/path/printed/by/the/script

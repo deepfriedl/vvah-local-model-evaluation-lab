@@ -95,7 +95,8 @@ docker exec vvah-ollama ollama pull "${MODEL}"
 
 echo "Running harmless compatibility probes..."
 if ! python3 "${PROJECT_ROOT}/scripts/probe_model.py" --model "${MODEL}" | tee "${RUN_DIR}/probe.log"; then
-  echo "Probe failed. No VVAH scans were started." >&2
+  echo "Probe failed. No VVAH scans were started; the prior VVAH overlay is being restored." >&2
+  echo "Local-only probe log: ${RUN_DIR}/probe.log" >&2
   exit 1
 fi
 
