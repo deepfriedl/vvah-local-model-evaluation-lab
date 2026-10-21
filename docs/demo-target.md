@@ -19,3 +19,7 @@ claims separately as false positives.
 
 The fixture is for source-code analysis only. Do not install its dependencies,
 run it, bind it to a port, or expose it to any network.
+
+Use `scripts/scan_demo_target.sh` for the first assessment. It runs a free scope
+estimate, then stops VVAH after S9. It cannot enable remediation, validation, or
+live exploit verification.

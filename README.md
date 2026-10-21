@@ -58,6 +58,7 @@ experiments isolated from other local workloads.
 - `scripts/probe_model.py` — harmless endpoint capability checks.
 - `scripts/bootstrap_vvah.sh` — installs VVAH in an isolated virtual environment.
 - `scripts/create_demo_target.py` — creates an ignored, source-only training target.
+- `scripts/scan_demo_target.sh` — estimates and scans that target through S9 only.
 - `config/vvah-ollama-overlay.yaml` — complete, conservative VVAH model overlay.
 - `scripts/configure_vvah.sh` — installs the overlay into the local VVAH checkout.
 - `scripts/doctor_vvah.sh` — performs VVAH's live, token-spending backend check.
