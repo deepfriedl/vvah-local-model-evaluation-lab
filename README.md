@@ -61,6 +61,8 @@ experiments isolated from other local workloads.
 - `scripts/create_demo_target.py` — creates an ignored, source-only training target.
 - `scripts/scan_demo_target.sh` — estimates and scans that target through S9 only.
 - `scripts/summarize_demo_scan.py` — prints metadata-only artifact diagnostics; it never prints source or report excerpts.
+- `scripts/run_model_benchmark.sh` — sequentially probes and evaluates one model through the four Qwen 3 experiment configurations; all logs and generated overlays remain local under `private/benchmarks/`.
+- `scripts/render_benchmark_overlay.py` — renders a complete, credential-free overlay for one benchmark variant.
 - `config/vvah-ollama-overlay.yaml` — complete, conservative VVAH model overlay.
 - `scripts/configure_vvah.sh` — installs the overlay into the local VVAH checkout.
 - `scripts/doctor_vvah.sh` — performs VVAH's live, token-spending backend check.

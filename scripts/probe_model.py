@@ -4,35 +4,42 @@
 from __future__ import annotations
 
 import json
+import argparse
 import sys
 import urllib.error
 import urllib.request
 
 
-BASE_URL = "http://127.0.0.1:11435/v1"
-MODEL = "qwen3:8b"
+DEFAULT_BASE_URL = "http://127.0.0.1:11435/v1"
 
 
-def request(path: str, payload: dict | None = None) -> dict:
+def request(base_url: str, path: str, payload: dict | None = None) -> dict:
     body = None if payload is None else json.dumps(payload).encode("utf-8")
     headers = {"Content-Type": "application/json"} if body else {}
-    req = urllib.request.Request(f"{BASE_URL}{path}", data=body, headers=headers)
+    req = urllib.request.Request(f"{base_url}{path}", data=body, headers=headers)
     with urllib.request.urlopen(req, timeout=180) as response:
         return json.load(response)
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--model", default="qwen3:8b", help="Installed Ollama model to probe.")
+    parser.add_argument("--base-url", default=DEFAULT_BASE_URL, help="OpenAI-compatible endpoint URL.")
+    arguments = parser.parse_args()
+    model = arguments.model
+    base_url = arguments.base_url.rstrip("/")
     checks: list[tuple[str, bool, str]] = []
 
     try:
-        models = request("/models")
+        models = request(base_url, "/models")
         names = {item.get("id") for item in models.get("data", [])}
-        checks.append(("model listing", MODEL in names, f"models: {sorted(names)}"))
+        checks.append(("model listing", model in names, f"model present: {model in names}"))
 
         simple = request(
+            base_url,
             "/chat/completions",
             {
-                "model": MODEL,
+                "model": model,
                 "messages": [{"role": "user", "content": "Reply with exactly: ready"}],
                 "reasoning_effort": "none",
                 "temperature": 0,
@@ -43,9 +50,10 @@ def main() -> int:
         checks.append(("chat completion", text == "ready", f"response: {text!r}"))
 
         structured = request(
+            base_url,
             "/chat/completions",
             {
-                "model": MODEL,
+                "model": model,
                 "messages": [
                     {
                         "role": "user",
@@ -92,9 +100,10 @@ def main() -> int:
             }
         ]
         tool_result = request(
+            base_url,
             "/chat/completions",
             {
-                "model": MODEL,
+                "model": model,
                 "messages": [
                     {"role": "user", "content": "Use add_numbers to calculate 2 plus 3."}
                 ],
