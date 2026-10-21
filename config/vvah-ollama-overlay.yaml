@@ -7,9 +7,9 @@
 models:
   autoexclude: {id: "qwen3:8b", via: openai}
   preprocess: {id: "qwen3:8b", via: openai}
-  threatmodel: {id: "qwen3:8b", via: openai}
+  threatmodel: {id: "qwen3:8b", via: deepagents, provider: openai}
   decompose: {id: "qwen3:8b", via: openai}
-  deepdive: {id: "qwen3:8b", via: openai}
+  deepdive: {id: "qwen3:8b", via: deepagents, provider: openai}
   verify: {id: "qwen3:8b", via: openai}
   dedup: {id: "qwen3:8b", via: openai}
   chain: {id: "qwen3:8b", via: openai}

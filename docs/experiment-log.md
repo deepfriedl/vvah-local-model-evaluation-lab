@@ -33,3 +33,18 @@ It changes only `step2.effort` and `step4.effort` from their VVAH default of `hi
 to `low`. This tests whether Qwen 3 8B produces more usable structured evidence
 when it spends fewer tokens on native reasoning. Compare accepted findings, S5
 exclusions, `VVAH-E003` count, runtime, and GPU utilization with Baseline 1.
+
+Result: the threat model completed without a hollow-retry and produced three
+grounded threats. Deep-dive time fell from about 419 seconds to 296 seconds, and
+only one new degenerate-response event occurred. However, all five candidate
+findings still failed deterministic evidence enrichment. Reduced effort improves
+stability and runtime, but does not make the direct OpenAI-compatible route
+sufficiently structured for accepted findings.
+
+## Experiment 3 — schema-typed agentic route
+
+Keep the reduced-effort settings and use VVAH's `deepagents` route, resolved to
+the existing OpenAI-compatible endpoint, for only the threat-model and deep-dive
+roles. This route gives those agentic roles VVAH's schema-typed tool path instead
+of direct OpenAI-compatible structured output. The endpoint, Qwen model, target,
+single-session limit, and detection-only safety boundary remain unchanged.

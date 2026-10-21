@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,7 @@ SAFE_FIELDS = {
     "cwe_id",
     "rule_id",
 }
+RUN_TIMESTAMP = re.compile(r"_(\d{8}T\d{6}Z)_")
 
 
 def iter_records(value: Any):
@@ -45,6 +47,11 @@ def load_records(path: Path) -> tuple[list[Any], str | None]:
         return [], type(error).__name__
 
 
+def run_label(path: Path) -> str:
+    match = RUN_TIMESTAMP.search(path.name)
+    return match.group(1) if match else "current-unversioned"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -64,13 +71,15 @@ def main() -> int:
         path for path in scan_dir.rglob("*") if path.is_file() and path.suffix in {".json", ".jsonl", ".sarif", ".md"}
     )
     json_paths = [path for path in artifact_paths if path.suffix in {".json", ".jsonl", ".sarif"}]
-    counters: dict[str, Counter[str]] = {field: Counter() for field in SAFE_FIELDS}
-    malformed: list[str] = []
+    counters_by_run: dict[str, dict[str, Counter[str]]] = {}
+    malformed_by_run: dict[str, list[str]] = {}
 
     for path in json_paths:
+        label = run_label(path)
+        counters = counters_by_run.setdefault(label, {field: Counter() for field in SAFE_FIELDS})
         records, error = load_records(path)
         if error:
-            malformed.append(path.name)
+            malformed_by_run.setdefault(label, []).append(path.name)
             continue
         for record in records:
             for mapping in iter_records(record):
@@ -81,12 +90,14 @@ def main() -> int:
 
     print(f"Scan diagnostics: {scan_dir}")
     print(f"Artifacts: {len(artifact_paths)} total; {len(json_paths)} structured-data file(s)")
-    for field in sorted(SAFE_FIELDS):
-        if counters[field]:
-            values = ", ".join(f"{value}={count}" for value, count in sorted(counters[field].items()))
-            print(f"{field}: {values}")
-    if malformed:
-        print(f"Unreadable structured artifacts: {', '.join(sorted(malformed))}")
+    for label in sorted(counters_by_run):
+        print(f"Run {label}:")
+        for field in sorted(SAFE_FIELDS):
+            if counters_by_run[label][field]:
+                values = ", ".join(f"{value}={count}" for value, count in sorted(counters_by_run[label][field].items()))
+                print(f"  {field}: {values}")
+        if malformed_by_run.get(label):
+            print(f"  Unreadable structured artifacts: {', '.join(sorted(malformed_by_run[label]))}")
     print("No source, prompt, finding-description, or report-excerpt content was printed.")
     return 0
 
