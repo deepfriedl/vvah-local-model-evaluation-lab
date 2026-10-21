@@ -1,0 +1,81 @@
+# This file is deep-merged over Visa's packaged default.yaml by
+# scripts/configure_vvah.sh. It contains no credentials.
+#
+# The first evaluation profile is intentionally conservative for one 8 GB GPU:
+# one model session at a time, bounded output, no remediation, no validation,
+# and no live exploit verification.
+models:
+  autoexclude: {id: "qwen3:8b", via: openai}
+  preprocess: {id: "qwen3:8b", via: openai}
+  threatmodel: {id: "qwen3:8b", via: openai}
+  decompose: {id: "qwen3:8b", via: openai}
+  deepdive: {id: "qwen3:8b", via: openai}
+  verify: {id: "qwen3:8b", via: openai}
+  dedup: {id: "qwen3:8b", via: openai}
+  chain: {id: "qwen3:8b", via: openai}
+  remediate: {id: "qwen3:8b", via: openai}
+  validate:
+    orchestrator: {id: "qwen3:8b", via: openai}
+    security_architect: {id: "qwen3:8b"}
+    penetration_tester: {id: "qwen3:8b"}
+    cross_repo_analyzer: {id: "qwen3:8b"}
+  exploit_verification:
+    attacker: {id: "qwen3:8b", via: openai}
+    judge: {id: "qwen3:8b", via: openai}
+    classify: {id: "qwen3:8b", via: openai}
+    mapper: {id: "qwen3:8b", via: openai}
+
+openai:
+  api_key: ${OPENAI_API_KEY}
+  base_url: ${OPENAI_BASE_URL}
+  verify_ssl: true
+
+step1:
+  auto_exclude: false
+
+step2:
+  max_threats: 8
+  max_assets: 12
+  max_trust_boundaries: 16
+  max_tokens: 8192
+  max_turns: 40
+  max_model_calls: 2
+  deadline: 900
+  timeout: 1200
+
+step4:
+  parallel: 1
+  batch_size: 1
+  max_tokens: 8192
+  max_turns: 40
+  max_model_calls: 4
+  deadline: 1200
+  max_findings_per_run: 10
+
+step6_verify:
+  parallel: 1
+  batch_size: 1
+  max_tokens: 4096
+  max_turns: 30
+  max_model_calls: 4
+  batch_deadline: 1200
+  batch_wall_clock_ceiling: 1800
+
+step6_exploit_verification:
+  enabled: false
+
+step8:
+  max_model_calls: 1
+  max_turns: 8
+  max_tokens: 4096
+  prompt_token_budget: 24000
+  timeout: 1200
+
+step_remediate:
+  enabled: false
+
+step_validate:
+  enabled: false
+
+scan_progress:
+  style: compact

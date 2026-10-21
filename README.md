@@ -56,6 +56,9 @@ experiments isolated from other local workloads.
 - `deployment/docker-compose.yml` — complete, isolated model-server definition.
 - `scripts/probe_model.py` — harmless endpoint capability checks.
 - `scripts/bootstrap_vvah.sh` — installs VVAH in an isolated virtual environment.
+- `config/vvah-ollama-overlay.yaml` — complete, conservative VVAH model overlay.
+- `scripts/configure_vvah.sh` — installs the overlay into the local VVAH checkout.
+- `scripts/doctor_vvah.sh` — performs VVAH's live, token-spending backend check.
 - `docs/` — experiment notes and results, excluding credentials and target-source code.
 
 ## Never commit
