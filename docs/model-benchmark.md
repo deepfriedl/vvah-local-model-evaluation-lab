@@ -77,3 +77,21 @@ only after the endpoint's tool-call behavior is known.
 The placeholder credential is not written to disk, and neither it nor the base
 URL is committed to Git. Generated scan data remains under ignored
 `private/remote-benchmarks/`.
+
+### Long-running remote scans
+
+Run a remote scan inside `tmux` when the terminal may disconnect or the client
+computer may sleep. The runner now restores the previous VVAH overlay and writes
+an ignored `interrupted.txt` marker when it receives `HUP`, `INT`, or `TERM`.
+
+```bash
+tmux new -s vvah-medium
+cd /home/dave/vvah-local-model-evaluation-lab
+./scripts/run_remote_openai_scan.sh --model MODEL_IDENTIFIER --profile direct-medium
+```
+
+Detach with `Ctrl-b`, then `d`; later reconnect with:
+
+```bash
+tmux attach -t vvah-medium
+```

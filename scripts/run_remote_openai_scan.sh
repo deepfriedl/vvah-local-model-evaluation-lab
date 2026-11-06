@@ -82,7 +82,7 @@ mkdir -p "${RUN_DIR}"
 echo "Remote benchmark artifacts: ${RUN_DIR}"
 
 cleanup() {
-  if [ "${RESTORE_MODE}" = "restore" ]; then
+  if [ "${RESTORE_MODE}" = "restore" ] && [ -n "${BACKUP_OVERLAY}" ] && [ -f "${BACKUP_OVERLAY}" ]; then
     install -m 600 "${BACKUP_OVERLAY}" "${VVAH_OVERLAY}"
   elif [ "${RESTORE_MODE}" = "remove" ]; then
     rm -f "${VVAH_OVERLAY}"
@@ -90,8 +90,23 @@ cleanup() {
   if [ -n "${BACKUP_OVERLAY}" ]; then
     rm -f "${BACKUP_OVERLAY}"
   fi
+  BACKUP_OVERLAY=""
+  RESTORE_MODE=""
 }
-trap cleanup EXIT INT TERM
+
+interrupted() {
+  local signal_name="$1"
+  local exit_code="$2"
+  printf 'signal=%s\ninterrupted_utc=%s\n' "${signal_name}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${RUN_DIR}/interrupted.txt"
+  cleanup
+  trap - EXIT HUP INT TERM
+  exit "${exit_code}"
+}
+
+trap cleanup EXIT
+trap 'interrupted HUP 129' HUP
+trap 'interrupted INT 130' INT
+trap 'interrupted TERM 143' TERM
 
 BACKUP_OVERLAY="$(mktemp)"
 if [ -f "${VVAH_OVERLAY}" ]; then
