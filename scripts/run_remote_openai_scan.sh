@@ -5,6 +5,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODEL=""
 RUN_DIR=""
 PROFILE="direct-low"
+BACKGROUND="false"
 VVAH_SOURCE_DIR="${HOME}/vvah-lab/visa-vulnerability-agentic-harness"
 VVAH_COMMAND="${VVAH_SOURCE_DIR}/.venv/bin/vvaharness"
 VVAH_CONFIG="${VVAH_SOURCE_DIR}/vvaharness/config/profiles/default.yaml"
@@ -15,7 +16,7 @@ BACKUP_OVERLAY=""
 RESTORE_MODE=""
 
 usage() {
-  echo "Usage: VVAH_REMOTE_OPENAI_BASE_URL=https://endpoint/v1 $0 --model MODEL [--profile direct-low|direct-medium|typed-all] [--run-dir DIRECTORY]" >&2
+  echo "Usage: VVAH_REMOTE_OPENAI_BASE_URL=https://endpoint/v1 $0 --model MODEL [--profile direct-low|direct-medium|typed-all] [--run-dir DIRECTORY] [--background]" >&2
 }
 
 while [ "$#" -gt 0 ]; do
@@ -31,6 +32,10 @@ while [ "$#" -gt 0 ]; do
     --run-dir)
       RUN_DIR="${2:-}"
       shift 2
+      ;;
+    --background)
+      BACKGROUND="true"
+      shift
       ;;
     *)
       usage
@@ -80,6 +85,22 @@ fi
 
 mkdir -p "${RUN_DIR}"
 echo "Remote benchmark artifacts: ${RUN_DIR}"
+
+if [ "${BACKGROUND}" = "true" ]; then
+  RUNNER_LOG="${RUN_DIR}/runner.log"
+  RUNNER_PID_FILE="${RUN_DIR}/runner.pid"
+  nohup "$0" \
+    --model "${MODEL}" \
+    --profile "${PROFILE}" \
+    --run-dir "${RUN_DIR}" \
+    </dev/null > "${RUNNER_LOG}" 2>&1 &
+  RUNNER_PID="$!"
+  printf '%s\n' "${RUNNER_PID}" > "${RUNNER_PID_FILE}"
+  echo "Remote scan started in background: pid ${RUNNER_PID}"
+  echo "Console log: ${RUNNER_LOG}"
+  echo "Status artifacts: ${RUN_DIR}"
+  exit 0
+fi
 
 cleanup() {
   if [ "${RESTORE_MODE}" = "restore" ] && [ -n "${BACKUP_OVERLAY}" ] && [ -f "${BACKUP_OVERLAY}" ]; then

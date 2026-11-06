@@ -95,3 +95,17 @@ Detach with `Ctrl-b`, then `d`; later reconnect with:
 ```bash
 tmux attach -t vvah-medium
 ```
+
+Alternatively, start the runner without an attached terminal:
+
+```bash
+./scripts/run_remote_openai_scan.sh \
+  --model MODEL_IDENTIFIER \
+  --profile direct-medium \
+  --background
+```
+
+This launches the same runner through `nohup`, returns the shell prompt
+immediately, and stores `runner.pid`, `runner.log`, and all scan artifacts in
+the ignored run directory printed at startup. Inspect completion through that
+directory's `direct-medium/status.txt` and `direct-medium/complete` marker.
