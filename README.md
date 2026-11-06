@@ -70,6 +70,7 @@ experiments isolated from other local workloads.
 - `scripts/create_demo_target.py` — creates an ignored, source-only training target.
 - `scripts/scan_demo_target.sh` — estimates and scans that target through S9 only.
 - `scripts/summarize_demo_scan.py` — prints metadata-only artifact diagnostics; it never prints source or report excerpts.
+- `scripts/render_vulnerability_report.py` — renders a local-only Markdown assessment from a completed SARIF report without copying source code or report excerpts.
 - `scripts/run_model_benchmark.sh` — sequentially probes and evaluates one model through the four Qwen 3 experiment configurations; all logs and generated overlays remain local under `private/benchmarks/`.
 - `scripts/run_remote_openai_scan.sh` — runs a minimal generation preflight, then one bounded VVAH scan through a supplied OpenAI-compatible endpoint; its URL is supplied only at runtime and is not recorded in run metadata or Git.
 - `scripts/render_benchmark_overlay.py` — renders a complete, credential-free overlay for one benchmark variant.
