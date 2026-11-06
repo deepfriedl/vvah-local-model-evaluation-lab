@@ -55,3 +55,21 @@ the path below is an illustration only and must be replaced:
 
 The model weights are kept in the isolated VVAH Ollama volume. They are not
 committed or published.
+
+## Remote OpenAI-compatible endpoint
+
+For an authorized private endpoint reachable from the Ubuntu server, keep its
+base URL out of repository files and pass it only as an environment variable.
+The remote runner does not pull a local model. It first confirms `/models` and
+one plain chat completion, then performs one bounded `direct-low` scan. It does
+not claim JSON-schema or tool-call compatibility has been verified.
+
+```bash
+export VVAH_REMOTE_OPENAI_BASE_URL='https://private-endpoint.example/v1'
+./scripts/run_remote_openai_scan.sh --model MODEL_IDENTIFIER
+```
+
+Use `--profile typed-all` only after the endpoint's tool-call behavior is known.
+The placeholder credential is not written to disk, and neither it nor the base
+URL is committed to Git. Generated scan data remains under ignored
+`private/remote-benchmarks/`.

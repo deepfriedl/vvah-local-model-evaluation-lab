@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Run harmless OpenAI-compatible API probes against the isolated VVAH model."""
+"""Run harmless OpenAI-compatible API probes for a VVAH model endpoint."""
 
 from __future__ import annotations
 
-import json
 import argparse
+import json
 import sys
 import urllib.error
 import urllib.request
@@ -23,8 +23,14 @@ def request(base_url: str, path: str, payload: dict | None = None) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="qwen3:8b", help="Installed Ollama model to probe.")
+    parser.add_argument("--model", default="qwen3:8b", help="Model identifier to probe.")
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL, help="OpenAI-compatible endpoint URL.")
+    parser.add_argument(
+        "--mode",
+        choices=("minimal", "full"),
+        default="full",
+        help="minimal checks listing and one plain generation; full also checks JSON schema and tools.",
+    )
     arguments = parser.parse_args()
     model = arguments.model
     base_url = arguments.base_url.rstrip("/")
@@ -41,7 +47,6 @@ def main() -> int:
             {
                 "model": model,
                 "messages": [{"role": "user", "content": "Reply with exactly: ready"}],
-                "reasoning_effort": "none",
                 "temperature": 0,
                 "max_tokens": 16,
             },
@@ -49,74 +54,75 @@ def main() -> int:
         text = simple["choices"][0]["message"].get("content", "").strip().lower()
         checks.append(("chat completion", text == "ready", f"response: {text!r}"))
 
-        structured = request(
-            base_url,
-            "/chat/completions",
-            {
-                "model": model,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "Return an object containing only the boolean field ready set to true.",
-                    }
-                ],
-                "reasoning_effort": "none",
-                "temperature": 0,
-                "max_tokens": 32,
-                "response_format": {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "readiness",
-                        "strict": True,
-                        "schema": {
-                            "type": "object",
-                            "properties": {"ready": {"type": "boolean"}},
-                            "required": ["ready"],
-                            "additionalProperties": False,
+        if arguments.mode == "full":
+            structured = request(
+                base_url,
+                "/chat/completions",
+                {
+                    "model": model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": "Return an object containing only the boolean field ready set to true.",
+                        }
+                    ],
+                    "reasoning_effort": "none",
+                    "temperature": 0,
+                    "max_tokens": 32,
+                    "response_format": {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "readiness",
+                            "strict": True,
+                            "schema": {
+                                "type": "object",
+                                "properties": {"ready": {"type": "boolean"}},
+                                "required": ["ready"],
+                                "additionalProperties": False,
+                            },
                         },
                     },
                 },
-            },
-        )
-        structured_text = structured["choices"][0]["message"].get("content", "")
-        parsed = json.loads(structured_text)
-        checks.append(("structured JSON", parsed == {"ready": True}, f"response: {parsed!r}"))
+            )
+            structured_text = structured["choices"][0]["message"].get("content", "")
+            parsed = json.loads(structured_text)
+            checks.append(("structured JSON", parsed == {"ready": True}, f"response: {parsed!r}"))
 
-        tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "add_numbers",
-                    "description": "Add two integer values.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "a": {"type": "integer"},
-                            "b": {"type": "integer"},
+            tools = [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "add_numbers",
+                        "description": "Add two integer values.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "a": {"type": "integer"},
+                                "b": {"type": "integer"},
+                            },
+                            "required": ["a", "b"],
                         },
-                        "required": ["a", "b"],
                     },
+                }
+            ]
+            tool_result = request(
+                base_url,
+                "/chat/completions",
+                {
+                    "model": model,
+                    "messages": [
+                        {"role": "user", "content": "Use add_numbers to calculate 2 plus 3."}
+                    ],
+                    "tools": tools,
+                    "tool_choice": "required",
+                    "reasoning_effort": "none",
+                    "temperature": 0,
+                    "max_tokens": 64,
                 },
-            }
-        ]
-        tool_result = request(
-            base_url,
-            "/chat/completions",
-            {
-                "model": model,
-                "messages": [
-                    {"role": "user", "content": "Use add_numbers to calculate 2 plus 3."}
-                ],
-                "tools": tools,
-                "tool_choice": "required",
-                "reasoning_effort": "none",
-                "temperature": 0,
-                "max_tokens": 64,
-            },
-        )
-        calls = tool_result["choices"][0]["message"].get("tool_calls", [])
-        valid_call = len(calls) == 1 and calls[0].get("function", {}).get("name") == "add_numbers"
-        checks.append(("tool call", valid_call, f"tool calls: {calls!r}"))
+            )
+            calls = tool_result["choices"][0]["message"].get("tool_calls", [])
+            valid_call = len(calls) == 1 and calls[0].get("function", {}).get("name") == "add_numbers"
+            checks.append(("tool call", valid_call, f"tool calls: {calls!r}"))
     except (KeyError, TypeError, ValueError, urllib.error.URLError) as exc:
         checks.append(("request execution", False, f"{type(exc).__name__}: {exc}"))
 
