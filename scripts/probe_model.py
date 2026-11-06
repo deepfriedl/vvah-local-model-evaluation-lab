@@ -48,11 +48,17 @@ def main() -> int:
                 "model": model,
                 "messages": [{"role": "user", "content": "Reply with exactly: ready"}],
                 "temperature": 0,
-                "max_tokens": 16,
+                "max_tokens": 256,
             },
         )
-        text = simple["choices"][0]["message"].get("content", "").strip().lower()
-        checks.append(("chat completion", text == "ready", f"response: {text!r}"))
+        choice = simple["choices"][0]
+        message = choice.get("message") or {}
+        content = (message.get("content") or "").strip().lower()
+        reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
+        detail = f"response: {content!r}; finish_reason: {choice.get('finish_reason')!r}"
+        if not content and reasoning:
+            detail += f"; reasoning-only response: {len(str(reasoning))} characters"
+        checks.append(("chat completion", content == "ready", detail))
 
         if arguments.mode == "full":
             structured = request(
