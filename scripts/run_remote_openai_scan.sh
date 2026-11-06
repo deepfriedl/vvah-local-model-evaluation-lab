@@ -15,7 +15,7 @@ BACKUP_OVERLAY=""
 RESTORE_MODE=""
 
 usage() {
-  echo "Usage: VVAH_REMOTE_OPENAI_BASE_URL=https://endpoint/v1 $0 --model MODEL [--profile direct-low|typed-all] [--run-dir DIRECTORY]" >&2
+  echo "Usage: VVAH_REMOTE_OPENAI_BASE_URL=https://endpoint/v1 $0 --model MODEL [--profile direct-low|direct-medium|typed-all] [--run-dir DIRECTORY]" >&2
 }
 
 while [ "$#" -gt 0 ]; do
@@ -55,10 +55,10 @@ if [[ ! "${VVAH_REMOTE_OPENAI_BASE_URL}" =~ ^https?://[^[:space:]]+/v1/?$ ]]; th
 fi
 
 case "${PROFILE}" in
-  direct-low|typed-all)
+  direct-low|direct-medium|typed-all)
     ;;
   *)
-    echo "Invalid profile. Choose direct-low or typed-all." >&2
+    echo "Invalid profile. Choose direct-low, direct-medium, or typed-all." >&2
     exit 2
     ;;
 esac

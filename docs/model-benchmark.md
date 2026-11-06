@@ -69,7 +69,11 @@ export VVAH_REMOTE_OPENAI_BASE_URL='https://private-endpoint.example/v1'
 ./scripts/run_remote_openai_scan.sh --model MODEL_IDENTIFIER
 ```
 
-Use `--profile typed-all` only after the endpoint's tool-call behavior is known.
+Use `--profile direct-medium` to set VVAH's threat-model and deep-dive effort to
+`medium` while preserving the direct OpenAI-compatible route. Verification and
+repair calls retain the endpoint's default reasoning behavior because this lab
+overlay does not configure an effort for those stages. Use `--profile typed-all`
+only after the endpoint's tool-call behavior is known.
 The placeholder credential is not written to disk, and neither it nor the base
 URL is committed to Git. Generated scan data remains under ignored
 `private/remote-benchmarks/`.

@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 
-VARIANTS = ("direct-high", "direct-low", "typed-detection", "typed-full", "typed-all")
+VARIANTS = ("direct-high", "direct-medium", "direct-low", "typed-detection", "typed-full", "typed-all")
 MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 
 
@@ -47,12 +47,12 @@ def main() -> int:
     for role in ("threatmodel", "deepdive", "verify"):
         text = replace_role(text, role, direct)
 
-    if arguments.variant == "direct-high":
-        text = replace_effort(text, "step2", "high")
-        text = replace_effort(text, "step4", "high")
-    else:
-        text = replace_effort(text, "step2", "low")
-        text = replace_effort(text, "step4", "low")
+    effort = {
+        "direct-high": "high",
+        "direct-medium": "medium",
+    }.get(arguments.variant, "low")
+    text = replace_effort(text, "step2", effort)
+    text = replace_effort(text, "step4", effort)
 
     if arguments.variant in {"typed-detection", "typed-full"}:
         for role in ("threatmodel", "deepdive"):
