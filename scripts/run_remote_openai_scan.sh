@@ -181,4 +181,5 @@ if [ "${SCAN_EXIT_CODE}" -ne 0 ]; then
   exit "${SCAN_EXIT_CODE}"
 fi
 
+: > "${VARIANT_DIR}/complete"
 echo "Remote benchmark complete. Local-only artifacts: ${RUN_DIR}"
